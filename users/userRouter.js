@@ -1,12 +1,10 @@
 const express = require('express')
-const userDb = require('./user-model')
 
-const Users = require('../users/user-model.js')
-const validateCreds = require('../auth/validateCreds')
+const Users = require('./user-model.js')
+const protected = require('../auth/protected')
 
 const router = express.Router()
 const bcrypt = require('bcryptjs')
-
 
 router.post('/register', (req, res) => {
   let { username, password } = req.body
@@ -26,7 +24,7 @@ router.post('/login', (req, res) => {
   if (username && password) {
     Users.findBy({ username })
       .first()
-      .then((then) => {
+      .then((user) => {
         if (user && bcrypt.compareSync(password, user.password)) {
           res.status(200).json({ message: `Welcome ${user.username}` })
         } else {
@@ -42,7 +40,7 @@ router.post('/login', (req, res) => {
   }
 })
 
-router.get('/api/users', validateCreds, (req, res) => {
+router.get('/users', protected, (req, res) => {
   Users.find()
     .then((users) => {
       res.json(users)

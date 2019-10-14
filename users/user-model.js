@@ -1,36 +1,34 @@
 const db = require('../database/dbConfig.js')
 
 module.exports = {
-  get,
-  getById,
-  getUserPosts,
-  insert,
+  find,
+  findBy,
+  findById,
+  add,
   update,
   remove
 }
 
-function get() {
-  return db('users')
+function find() {
+  return db('users').select('id', 'username', 'password')
 }
 
-function getById(id) {
-  return db('users')
-    .where({ id })
-    .first()
+function findBy(filter) {
+  return db('users').where(filter)
 }
 
-function getUserPosts(userId) {
-  return db('posts as p')
-    .join('users as u', 'u.id', 'p.user_id')
-    .select('p.id', 'p.text', 'u.name as postedBy')
-    .where('p.user_id', userId)
+function findById(id) {
+  return db('users')
+  .where({ id })
+  .first()
 }
 
-function insert(user) {
+function add(user) {
   return db('users')
-    .insert(user)
+    .insert(user, 'id')
     .then((ids) => {
-      return getById(ids[0])
+      const [id] = ids
+      return findById(id)
     })
 }
 
